@@ -2,7 +2,7 @@
 /*
 Plugin Name: (DMCK) starter plugin
 Plugin URI: dreaddymck.com
-Description: Another Wordpress starter plugin. There are many starter plugins out there. This is mine. shortcode = [dmck-starter_plugin]
+Description: Another Wordpress starter plugin. There are many starter plugins out there. This is mine. shortcode = [dmck-starter-plugin]
 Version: 1.0
 Author: dreaddymck
 Author URI: dreaddymck.com
@@ -18,8 +18,8 @@ if (!class_exists("DMCK_starter_plugin_cls")) {
 
 		public $plugin_title 			= '(DMCK) starter plugin';
 		public $plugin_slug				= 'dmck_starter_plugin';
-		public $plugin_settings_group 	= 'dmck-starter_plugin-settings-group';
-		public $shortcode				= "dmck-starter_plugin";	
+		public $plugin_settings_group 	= 'dmck-starter-plugin-settings-group';
+		public $shortcode				= "dmck-starter-plugin";	
 			
 		public $adminpreferences 		= array('adminpreferences','favicon');
 		public $userpreferences 		= array('userpreferences');

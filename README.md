@@ -1,9 +1,20 @@
 # wp-plugin-class
+
 starter class for wordpress plugin
 
-instructions. 
+example installation instructions. 
+
+shortcode: [dmck-starter-plugin]
+
+== Installation ==
+
+1. Upload plugin folder to `/wp-content/plugins/` directory
+2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Add shortcode to pages or posts as needed.
 
 Have fun. Fork. Share.
+
+
 
 rename the values for to suite your needs
 
