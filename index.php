@@ -21,15 +21,24 @@ if (!class_exists("DMCK_starter_plugin_cls")) {
 		public $plugin_settings_group 	= 'dmck-starter_plugin-settings-group';
 		public $shortcode				= "dmck-starter_plugin";	
 			
-		public $adminpreferences 		= array('adminpreferences');
+		public $adminpreferences 		= array('adminpreferences','favicon');
 		public $userpreferences 		= array('userpreferences');
 
+		public $plugin_url;
+		public $plugin_dir_path;
+		public $theme_url;
+		public $github_url				= "";
+				
 		public $wpdb;		
 
 		function __construct() {
 			
 			global $wpdb;
-			$this->wpdb = $wpdb;
+			
+			$this->wpdb 			= $wpdb;
+			$this->plugin_url 		= plugins_url("/",__FILE__);
+			$this->theme_url		= dirname( get_bloginfo('stylesheet_url') );	
+			$this->plugin_dir_path	= plugin_dir_path(__FILE__);
 
 			register_activation_hook( __FILE__, array($this, 'register_activation' ) );		
 
@@ -39,6 +48,10 @@ if (!class_exists("DMCK_starter_plugin_cls")) {
 			add_action( 'admin_enqueue_scripts', array($this, 'admin_scripts') );
 			add_action( 'admin_bar_menu', array( $this, 'admin_bar_setup'), 999);
 			add_action( 'wp_enqueue_scripts', array($this, 'user_scripts') );
+			
+			add_action( 'wp_head', array($this, 'head_hook') );
+			add_action( 'login_head', array($this, 'head_hook') );
+			add_action( 'admin_head', array($this, 'head_hook') );			
 		}
 
 		function register_activation($options){}
@@ -67,46 +80,40 @@ if (!class_exists("DMCK_starter_plugin_cls")) {
 		function admin_scripts($hook_suffix) {
 			
 			if ( $this->settings_page == $hook_suffix ) {
-
-				$plugins_url 		= plugins_url("/",__FILE__);
-				$plugin_dir_path	= plugin_dir_path(__FILE__);
 				
-				wp_enqueue_style( 'plugin-style.css',  $plugin_url . "style.css");
-				wp_enqueue_script( 'functions.js', $plugins_url . 'functions.js', array( 'jquery' ), '1.0.0', true );
-				
-				$local = array(
-						'plugin_url' => $plugins_url,
-						'plugin_path' => plugin_dir_path,
-						'is_front_page' => is_front_page(),
-						'is_single' => is_single(),
-						'is_page' => is_page(),
-				);
-				wp_localize_script( 'functions.js', $this->plugin_slug, $local);
-
+				$this->shared_scripts();
+				wp_enqueue_style( 'admin.css',  $this->plugin_url . "/admin.css");
+				wp_enqueue_script( 'admin.js', $this->plugin_url . '/admin.js', array( 'jquery' ), '1.0.1', true );
+				$this->localize_vars();
 			}
 
 		}
 		function user_scripts() {
 			
-			if( $this->has_shortcode( $this->shortcode ) ) 
-			{			
-				$plugin_url = plugins_url("/",__FILE__);
-				
-				wp_enqueue_style( 'plugin-style.css',  $plugin_url . "style.css");
-				wp_enqueue_script( 'functions.js', $plugin_url . 'functions.js', array( 'jquery' ), '1.0.0', true );
-				
-				$local = array(
-						'plugin_url' => $plugin_url,
-						'plugin_path' => plugin_dir_path(__FILE__),
-						'is_front_page' => is_front_page(),
-						'is_single' => is_single(),
-						'is_page' => is_page(),
-				);
-				wp_localize_script( 'functions.js', $this->plugin_slug, $local);
+			if( $this->has_shortcode( $this->shortcode ) ) {}			
 
-			}			
+			$this->shared_scripts();
+			$this->localize_vars();
 
 		}
+		function shared_scripts(){
+			wp_enqueue_style( 'style.css',  $this->plugin_url . "/style.css");
+			wp_enqueue_script( 'functions.js', $this->plugin_url . '/js/functions.js', array( 'jquery' ), '1.0.1', true );
+		}
+		function localize_vars(){
+			$local = array(
+					'plugin_url' => $this->plugin_url,
+					'is_front_page' => is_front_page(),
+					'is_single' => is_single(),
+					'is_page' => is_page(),
+					'plugin_slug' => $this->plugin_slug,
+					'plugin_title' => $this->plugin_title,
+					'github_url' => $this->github_url,
+					'has_shortcode' => $this->has_shortcode($this->shortcode),
+			);
+		
+			wp_localize_script( 'functions.js', $this->plugin_slug, $local);
+		}		
 		function has_shortcode($shortcode = '') {
 		
 			$post_to_check = get_post(get_the_ID());
@@ -149,11 +156,15 @@ if (!class_exists("DMCK_starter_plugin_cls")) {
 			if ( !current_user_can( 'read' ) )  {
 				wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 			}
-			//include ( plugin_dir_path(__FILE__).'admin.php' );			
-			echo "<h1>Admin Stuff</h1>";
+			include ( plugin_dir_path(__FILE__).'admin.php' );
 			
 		}
-			
+		function head_hook() {
+			$favicon = esc_attr( get_option('favicon') );
+			if( $favicon ){
+				echo  '<link href="'.$favicon.'" rel="icon" type="image/x-icon"></link>';
+			}
+		}			
 		function var_error_log( $object=null ){
 			ob_start();                    // start buffer capture
 			var_dump( $object );           // dump the values
